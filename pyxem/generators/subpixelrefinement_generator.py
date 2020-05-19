@@ -22,7 +22,7 @@ Generating subpixel resolution on diffraction vectors.
 
 import numpy as np
 
-from skimage.feature import register_translation
+from skimage.registration import phase_cross_correlation
 from pyxem.utils.subpixel_refinements_utils import get_experimental_square
 from pyxem.utils.subpixel_refinements_utils import get_simulated_disc
 from pyxem.utils.subpixel_refinements_utils import _get_pixel_vectors
@@ -51,7 +51,7 @@ def _conventional_xc(exp_disc, sim_disc, upsample_factor):
 
     """
 
-    shifts, error, _ = register_translation(exp_disc, sim_disc, upsample_factor)
+    shifts, error, _ = phase_cross_correlation(exp_disc, sim_disc, upsample_factor)
     shifts = np.flip(shifts)  # to comply with hyperspy conventions - see issue#490
     return shifts
 

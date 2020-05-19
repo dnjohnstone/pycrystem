@@ -27,7 +27,7 @@ from skimage import transform as tf
 from skimage import morphology, filters
 from skimage.morphology import square, opening
 from skimage.draw import ellipse_perimeter
-from skimage.feature import register_translation
+from skimage.registration import phase_cross_correlation
 from scipy.optimize import curve_fit
 from tqdm import tqdm
 
@@ -727,7 +727,7 @@ def find_beam_offset_cross_correlation(z, radius_start, radius_finish):
         hann2d = np.sqrt(np.outer(h0, h1))
         ref = hann2d * ref
         im = hann2d * z
-        shift, error, diffphase = register_translation(ref, im, 10)
+        shift, error, diffphase = phase_cross_correlation(ref, im, 10)
         errRecord[ind] = error
         index_min = np.argmin(errRecord)
 
@@ -739,7 +739,7 @@ def find_beam_offset_cross_correlation(z, radius_start, radius_finish):
     hann2d = np.sqrt(np.outer(h0, h1))
     ref = hann2d * ref
     im = hann2d * z
-    shift, error, diffphase = register_translation(ref, im, 100)
+    shift, error, diffphase = phase_cross_correlation(ref, im, 100)
 
     return shift - 0.5
 
