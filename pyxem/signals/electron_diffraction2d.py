@@ -176,6 +176,7 @@ class ElectronDiffraction2D(Diffraction2D):
                 exposure_time,
             )
 
+<<<<<<< HEAD
     def set_diffraction_calibration(self, calibration, center=None):
         """Set diffraction pattern pixel size in reciprocal Angstroms and origin
         location.
@@ -222,6 +223,31 @@ class ElectronDiffraction2D(Diffraction2D):
         y.name = "y"
         y.scale = calibration
         y.units = "nm"
+=======
+    def as_lazy(self, *args, **kwargs):
+        """Create a copy of the ElectronDiffraction2D object as a
+        :py:class:`~pyxem.signals.electron_diffraction2d.LazyElectronDiffraction2D`.
+
+        Parameters
+        ----------
+        copy_variance : bool
+            If True variance from the original ElectronDiffraction2D object is
+            copied to the new LazyElectronDiffraction2D object.
+
+        Returns
+        -------
+        res : :py:class:`~pyxem.signals.electron_diffraction2d.LazyElectronDiffraction2D`.
+            The lazy signal.
+        """
+        res = super().as_lazy(*args, **kwargs)
+        res.__class__ = LazyElectronDiffraction2D
+        res.__init__(**res._to_dictionary())
+        return res
+
+    def decomposition(self, *args, **kwargs):
+        super().decomposition(*args, **kwargs)
+        self.__class__ = ElectronDiffraction2D
+>>>>>>> 56aa0b1780fc6379e6e85e4fc725db34e4b028c8
 
 
 class LazyElectronDiffraction2D(LazySignal, ElectronDiffraction2D):

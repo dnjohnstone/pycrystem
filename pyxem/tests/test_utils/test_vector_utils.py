@@ -39,6 +39,7 @@ def test_calculate_norms_ragged():
     assert np.allclose(norms, [3, 10])
 
 
+<<<<<<< HEAD
 @pytest.mark.parametrize(
     "wavelength, camera_length, detector_coords, k_expected",
     [
@@ -59,6 +60,28 @@ def test_calculate_norms_ragged():
 def test_detector_to_fourier(wavelength, camera_length, detector_coords, k_expected):
     k = detector_to_fourier(detector_coords, wavelength, camera_length)
     np.testing.assert_allclose(k, k_expected)
+=======
+@pytest.mark.parametrize('beam_energy, camera_length, detector_coords, k_expected', [
+    (201.09, 0.2,
+        np.array([
+            [0, 0],
+            [0, 1],
+            [1, 1]
+        ]),
+        np.array([
+            [0, 0, 1 / 0.025 - 40],
+            [0, 1, np.sqrt(1 / (0.025**2) - 1) - 40],
+            [1, 1, np.sqrt(1 / (0.025**2) - 1 - 1) - 40]
+        ])
+     )
+])
+def test_detector_to_fourier(beam_energy,
+                             camera_length,
+                             detector_coords,
+                             k_expected):
+    k = detector_to_fourier(detector_coords, beam_energy, camera_length)
+    np.testing.assert_allclose(k, k_expected, rtol=1e-05)
+>>>>>>> 56aa0b1780fc6379e6e85e4fc725db34e4b028c8
 
 
 @pytest.mark.parametrize(

@@ -19,11 +19,16 @@
 import pytest
 import numpy as np
 
+<<<<<<< HEAD
 from pyxem.generators.subpixelrefinement_generator import (
     SubpixelrefinementGenerator,
     get_simulated_disc,
 )
 from pyxem.signals.diffraction_vectors import DiffractionVectors
+=======
+from pyxem.generators.subpixelrefinement_generator2d import SubpixelRefinementGenerator2D, get_simulated_disc
+from pyxem.signals.detector_coordinates2d import DetectorCoordinates2D
+>>>>>>> 56aa0b1780fc6379e6e85e4fc725db34e4b028c8
 from pyxem.signals.electron_diffraction2d import ElectronDiffraction2D
 from skimage import draw
 
@@ -35,6 +40,7 @@ class Test_init_xfails:
         diffraction patterns raises a ValueError"""
         vector = np.array([[1, -100]])
         dp = ElectronDiffraction2D(np.ones((20, 20)))
+<<<<<<< HEAD
 
         with pytest.raises(
             ValueError,
@@ -47,6 +53,14 @@ class Test_init_xfails:
         diffraction patterns raises a ValueError"""
         vectors = DiffractionVectors(np.array([[1, -100]]))
         dp = ElectronDiffraction2D(np.ones((20, 20)))
+=======
+        sprg = SubpixelRefinementGenerator2D(dp, vector)
+
+    def test_out_of_range_vectors_DiffractionVectors2D(self):
+        vectors = DetectorCoordinates2D(np.array([[1, -100]]))
+        dp = ElectronDiffraction2D(np.ones((20, 20)))
+        sprg = SubpixelRefinementGenerator2D(dp, vectors)
+>>>>>>> 56aa0b1780fc6379e6e85e4fc725db34e4b028c8
 
         with pytest.raises(
             ValueError,
@@ -57,9 +71,13 @@ class Test_init_xfails:
     def test_wrong_navigation_dimensions(self):
         """Tests that navigation dimensions must be appropriate too."""
         dp = ElectronDiffraction2D(np.zeros((2, 2, 8, 8)))
-        vectors = DiffractionVectors(np.zeros((1, 2)))
+        vectors = DetectorCoordinates2D(np.zeros((1, 2)))
         dp.axes_manager.set_signal_dimension(2)
         vectors.axes_manager.set_signal_dimension(0)
+<<<<<<< HEAD
+=======
+        SPR_generator = SubpixelRefinementGenerator2D(dp, vectors)
+>>>>>>> 56aa0b1780fc6379e6e85e4fc725db34e4b028c8
 
         # Note - uses regex via re.search()
         with pytest.raises(
@@ -86,41 +104,55 @@ class set_up_for_subpixelpeakfinders:
         # marks centers for local com and local_gaussian_method
         z1[30, 90], z2[30, 90], z2[100, 60] = 2, 2, 2
         z1a[30, 93], z2a[30, 93], z2a[98, 60] = 10, 10, 10
+<<<<<<< HEAD
 
         dp = ElectronDiffraction2D(
             np.asarray([[z1, z1a], [z2, z2a]])
         )  # this needs to be in 2x2
+=======
+        # this needs to be in 2x2
+        dp = ElectronDiffraction2D(np.asarray([[z1, z1a], [z2, z2a]]))
+>>>>>>> 56aa0b1780fc6379e6e85e4fc725db34e4b028c8
         return dp
 
     def create_Diffraction_vectors(self):
-        v1 = np.array([[90 - 64, 30 - 64]])
-        v2 = np.array([[90 - 64, 30 - 64], [100 - 64, 60 - 64]])
-        vectors = DiffractionVectors(np.array([[v1, v1], [v2, v2]]))
+        v1 = np.array([[90, 30]])
+        v2 = np.array([[90, 30], [100, 60]])
+        vectors = DetectorCoordinates2D(np.array([[v1, v1], [v2, v2]]))
         vectors.axes_manager.set_signal_dimension(0)
         return vectors
 
 
 class Test_subpixelpeakfinders:
     """ Tests the various peak finders have the correct x,y conventions for
-    both the vectors and the shifts, in both the numpy and the DiffractionVectors
+    both the vectors and the shifts, in both the numpy and the DiffractionVectors2D
     cases as well as confirming we have avoided 'off by one' errors """
 
     set_up = set_up_for_subpixelpeakfinders()
 
+<<<<<<< HEAD
     @pytest.fixture(
         params=[set_up.create_Diffraction_vectors(), np.array([[90 - 64, 30 - 64]])]
     )
+=======
+    @pytest.fixture(params=[set_up.create_Diffraction_vectors(), np.array([[90, 30]])])
+>>>>>>> 56aa0b1780fc6379e6e85e4fc725db34e4b028c8
     def diffraction_vectors(self, request):
         # see https://bit.ly/2mXpSlD for an example of this architecture
         return request.param
 
     def get_spr(self, diffraction_vectors):
         dp = set_up_for_subpixelpeakfinders().create_spot()
-        return SubpixelrefinementGenerator(dp, diffraction_vectors)
+        return SubpixelRefinementGenerator2D(dp, diffraction_vectors)
 
     def no_shift_case(self, s):
+<<<<<<< HEAD
         error = s.data[0, 0] - np.asarray([[90 - 64, 30 - 64]])
         rms_error = np.sqrt(error[0, 0] ** 2 + error[0, 1] ** 2)
+=======
+        error = s.data[0, 0] - np.asarray([[90, 30]])
+        rms_error = np.sqrt(error[0, 0]**2 + error[0, 1]**2)
+>>>>>>> 56aa0b1780fc6379e6e85e4fc725db34e4b028c8
         assert rms_error < 1e-5  # perfect detection for this trivial case
 
     def x_shift_case(self, s):
@@ -164,14 +196,20 @@ def create_spot_gaussian():
     )  # this needs to be in 2x2
     return dp
 
+<<<<<<< HEAD
 
 @pytest.mark.parametrize(
     "dp, diffraction_vectors",
     [(create_spot_gaussian(), np.array([[55 - 64, 25 - 64]]))],
 )
 @pytest.mark.filterwarnings("ignore::UserWarning")  # our warning
+=======
+@pytest.mark.parametrize('dp, diffraction_vectors',
+                         [(create_spot_gaussian(), np.array([[55, 25]]))])
+@pytest.mark.filterwarnings('ignore::UserWarning')  # our warning
+>>>>>>> 56aa0b1780fc6379e6e85e4fc725db34e4b028c8
 def test_bad_square_size_local_gaussian_method(dp, diffraction_vectors):
-    spr = SubpixelrefinementGenerator(dp, diffraction_vectors)
+    spr = SubpixelRefinementGenerator2D(dp, diffraction_vectors)
     s = spr.local_gaussian_method(2)
 
 

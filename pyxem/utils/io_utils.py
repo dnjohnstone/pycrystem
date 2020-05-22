@@ -27,8 +27,38 @@ from scipy.signal import find_peaks
 import h5py
 from struct import unpack
 
+<<<<<<< HEAD
 from pyxem.signals.electron_diffraction2d import LazyElectronDiffraction2D
 
+=======
+from pyxem.signals.diffraction1d import Diffraction1D
+from pyxem.signals.diffraction2d import Diffraction2D
+from pyxem.signals.electron_diffraction1d import ElectronDiffraction1D
+from pyxem.signals.electron_diffraction2d import ElectronDiffraction2D
+from pyxem.signals.vdf_image import VDFImage
+from pyxem.signals.crystallographic_map import CrystallographicMap
+from pyxem.signals.diffraction_vectors2d import DiffractionVectors2D
+from pyxem.signals.indexation_results import TemplateMatchingResults
+
+from pyxem.signals.diffraction1d import LazyDiffraction1D
+from pyxem.signals.diffraction2d import LazyDiffraction2D
+from pyxem.signals.electron_diffraction1d import LazyElectronDiffraction1D
+from pyxem.signals.electron_diffraction2d import LazyElectronDiffraction2D
+
+signal_dictionary = {'diffraction1d': Diffraction1D,
+                     'diffraction2d': Diffraction2D,
+                     'electron_diffraction1d': ElectronDiffraction1D,
+                     'electron_diffraction2d': ElectronDiffraction2D,
+                     'vdf_image': VDFImage,
+                     'template_matching': TemplateMatchingResults,
+                     'diffraction_vectors2d': DiffractionVectors2D,
+                     'crystallographic_map': CrystallographicMap}
+
+lazy_signal_dictionary = {'diffraction1d': LazyDiffraction1D,
+                          'diffraction2d': LazyDiffraction2D,
+                          'electron_diffraction1d': LazyElectronDiffraction1D,
+                          'electron_diffraction2d': LazyElectronDiffraction2D}
+>>>>>>> 56aa0b1780fc6379e6e85e4fc725db34e4b028c8
 
 def load_mib(mib_path, reshape=True, flip=True):
     """Read a .mib file or an h5 stack file using dask and return as a lazy pyXem / hyperspy signal.

@@ -26,13 +26,18 @@ import diffpy.structure
 import numpy as np
 from transforms3d.euler import euler2mat
 
+<<<<<<< HEAD
 from pyxem.signals.diffraction2d import Diffraction2D
 from pyxem.signals.electron_diffraction2d import ElectronDiffraction2D
 from pyxem.signals.electron_diffraction1d import ElectronDiffraction1D
+=======
+>>>>>>> 56aa0b1780fc6379e6e85e4fc725db34e4b028c8
 from diffsims.libraries.vector_library import DiffractionVectorLibrary
 
-from pyxem.utils.indexation_utils import OrientationResult
+from pyxem.signals.diffraction2d import Diffraction2D
+from pyxem.signals.electron_diffraction2d import ElectronDiffraction2D
 
+from pyxem.utils.indexation_utils import OrientationResult
 
 @pytest.fixture
 def default_structure():
@@ -91,6 +96,14 @@ def z():
         ]
     ).reshape(2, 2, 8, 8)
 
+@pytest.fixture
+def diffraction2d(z):
+    """A simple, multiuse diffraction pattern, with dimensions:
+    Diffraction2D <2,2|8,8>
+    """
+    dp = Diffraction2D(z)
+    dp.metadata.Signal.found_from = 'conftest' #dummy metadata
+    return dp
 
 @pytest.fixture
 def diffraction_pattern(z):

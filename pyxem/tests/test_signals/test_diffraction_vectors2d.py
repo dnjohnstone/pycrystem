@@ -18,9 +18,14 @@
 
 import pytest
 import numpy as np
+<<<<<<< HEAD:pyxem/tests/test_signals/test_diffraction_vectors.py
 from pyxem.signals.diffraction_vectors import DiffractionVectors
 from sklearn.cluster import DBSCAN
 from hyperspy.signals import Signal2D
+=======
+from pyxem.signals.diffraction_vectors2d import DiffractionVectors2D
+from sklearn.cluster.dbscan_ import DBSCAN
+>>>>>>> 56aa0b1780fc6379e6e85e4fc725db34e4b028c8:pyxem/tests/test_signals/test_diffraction_vectors2d.py
 
 # DiffractionVectors correspond to a single list of vectors, a map of vectors
 # all of equal length, and the ragged case. A fixture is defined for each of
@@ -44,7 +49,7 @@ from hyperspy.signals import Signal2D
     ]
 )
 def diffraction_vectors_single(request):
-    dvs = DiffractionVectors(request.param)
+    dvs = DiffractionVectors2D(request.param)
     dvs.axes_manager.set_signal_dimension(1)
     return dvs
 
@@ -107,6 +112,7 @@ def diffraction_vectors_single(request):
     ]
 )
 def diffraction_vectors_map(request):
+<<<<<<< HEAD:pyxem/tests/test_signals/test_diffraction_vectors.py
     dvm = DiffractionVectors(request.param)
     dvm.axes_manager.set_signal_dimension(0)
     dvm.axes_manager[0].name = "x"
@@ -140,6 +146,20 @@ def test_get_cartesian_coordinates(diffraction_vectors_map):
         diffraction_vectors_map.axes_manager[0].name
         == diffraction_vectors_map.cartesian.axes_manager[0].name
     )
+=======
+    dvm = DiffractionVectors2D(request.param)
+    return dvm
+
+
+def test_plot_unique_vectors(diffraction_vectors_map):
+    diffraction_vectors_map.plot_unique_vectors(xlim=1., ylim=1.,
+                                         distance_threshold=0)
+
+
+def test_plot_vectors_on_signal(diffraction_vectors_map,
+                                            diffraction_pattern):
+    diffraction_vectors_map.plot_vectors_on_signal(diffraction_pattern)
+>>>>>>> 56aa0b1780fc6379e6e85e4fc725db34e4b028c8:pyxem/tests/test_signals/test_diffraction_vectors2d.py
 
 
 class TestMagnitudes:
@@ -161,7 +181,7 @@ class TestMagnitudes:
 class TestUniqueVectors:
     def test_get_unique_vectors_map_type(self, diffraction_vectors_map):
         unique_vectors = diffraction_vectors_map.get_unique_vectors()
-        assert isinstance(unique_vectors, DiffractionVectors)
+        assert isinstance(unique_vectors, DiffractionVectors2D)
 
     def test_get_unique_vectors_single(self, diffraction_vectors_single):
         diffraction_vectors_single.get_unique_vectors()
@@ -215,9 +235,14 @@ class TestUniqueVectors:
 
     def test_get_unique_vectors_map_dbscan(self, diffraction_vectors_map):
         unique_dbscan = diffraction_vectors_map.get_unique_vectors(
+<<<<<<< HEAD:pyxem/tests/test_signals/test_diffraction_vectors.py
             method="DBSCAN", return_clusters=True
         )
         assert isinstance(unique_dbscan[0], DiffractionVectors)
+=======
+            method='DBSCAN', return_clusters=True)
+        assert isinstance(unique_dbscan[0], DiffractionVectors2D)
+>>>>>>> 56aa0b1780fc6379e6e85e4fc725db34e4b028c8:pyxem/tests/test_signals/test_diffraction_vectors2d.py
         assert isinstance(unique_dbscan[1], DBSCAN)
 
     @pytest.mark.parametrize(
@@ -343,6 +368,7 @@ class TestDiffractingPixelsMap:
         xim = diffraction_vectors_map.get_diffracting_pixels_map()
         assert xim.metadata.General.title == "Diffracting Pixels Map"
 
+<<<<<<< HEAD:pyxem/tests/test_signals/test_diffraction_vectors.py
     def test_get_dpm_in_range(self, diffraction_vectors_map):
         answer = np.array([[0.0, 3.0], [1.0, 1.0]])
         xim = diffraction_vectors_map.get_diffracting_pixels_map(in_range=(0, 0.1))
@@ -352,3 +378,10 @@ class TestDiffractingPixelsMap:
         answer = np.array([[1.0, 1.0], [1.0, 1.0]])
         xim = diffraction_vectors_map.get_diffracting_pixels_map(binary=True)
         assert np.allclose(xim, answer)
+=======
+    def test_get_dpm_map(self, diffraction_vectors_map):
+        diffraction_vectors_map.get_nvectors_map()
+
+    def test_get_dpm_map_binary(self, diffraction_vectors_map):
+        diffraction_vectors_map.get_nvectors_map(binary=True)
+>>>>>>> 56aa0b1780fc6379e6e85e4fc725db34e4b028c8:pyxem/tests/test_signals/test_diffraction_vectors2d.py

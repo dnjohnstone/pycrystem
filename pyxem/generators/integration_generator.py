@@ -27,7 +27,7 @@ from skimage.measure import label
 from scipy import ndimage as ndi
 from scipy.ndimage.measurements import center_of_mass
 
-from pyxem.signals.diffraction_vectors import DiffractionVectors
+from pyxem.signals.diffraction_vectors2d import DiffractionVectors2D
 from pyxem.utils.subpixel_refinements_utils import _get_pixel_vectors
 
 
@@ -37,7 +37,7 @@ def _get_intensities(z, vectors, radius=1):
 
     Parameters
     ----------
-    vectors : DiffractionVectors
+    vectors : DiffractionVectors2D
         Vectors to the locations of the spots to be
         integrated.
     radius: int,
@@ -94,7 +94,7 @@ def _get_intensities_summation_method(
 
     Parameters
     ----------
-    vectors : DiffractionVectors
+    vectors : DiffractionVectors2D
         Vectors to the locations of the spots to be
         integrated.
     box_inner : int
@@ -196,9 +196,9 @@ class IntegrationGenerator:
     ----------
     dp : ElectronDiffraction2D
         The electron diffraction patterns to be refined
-    vectors : DiffractionVectors | ndarray
+    vectors : DiffractionVectors2D | ndarray
         Vectors (in calibrated units) to the locations of the spots to be
-        integrated. If given as DiffractionVectors, it must have the same
+        integrated. If given as DiffractionVectors2D, it must have the same
         navigation shape as the electron diffraction patterns. If an ndarray,
         the same set of vectors is mapped over all electron diffraction
         patterns.
@@ -239,6 +239,7 @@ class IntegrationGenerator:
 
         return intensities
 
+<<<<<<< HEAD
     def extract_intensities_summation_method(
         self,
         box_inner: int = 7,
@@ -253,28 +254,47 @@ class IntegrationGenerator:
         All pixels with a large enough SNR are considered to be signal. The largest region
         of connected signal pixels are summed to calculate the reflection intensity. The
         diffraction vectors are calculated as the center of mass of the signal pixels.
+=======
+    def extract_intensities_summation_method(self,
+                                             box_inner: int = 7,
+                                             box_outer: int = 10,
+                                             n_min: int = 5,
+                                             n_max: int = 1000,
+                                             snr_thresh: float = 3.0):
+        """Integrate reflections using the summation method. Two boxes are
+        defined, the inner box is used to define the integration area. The outer
+        box is used to calculate the average signal-to-noise ratio (SNR).
+
+        All pixels with a large enough SNR are considered to be signal. The
+        largest region of connected signal pixels are summed to calculate the
+        reflection intensity. The diffraction vectors are calculated as the
+        center of mass of the signal pixels.
+>>>>>>> 56aa0b1780fc6379e6e85e4fc725db34e4b028c8
 
         Parameters
         ----------
         box_inner : int
-            Defines the size of the inner box, which must be larger than the reflection.
+            Defines the size of the inner box, which must be larger than the
+            reflection.
         box_outer : int
-            Defines the size of the outer box. The border between the inner and outer
-            box is considered background and used to calculate the (SNR) for each
-            pixel: SNR = (I - <I>/std(I_bkg)).
+            Defines the size of the outer box. The border between the inner and
+            outer box is considered background and used to calculate the (SNR)
+            for each pixel: SNR = (I - <I>/std(I_bkg)).
         snr_thresh : float
             Minimum signal-to-noise for a pixel to be considered as `signal`.
         n_min: int
-            If the number of SNR pixels in the inner box < n_min, the reflection is discared
+            If the number of SNR pixels in the inner box < n_min, the reflection
+            is discared.
         n_max:
-            If the number of SNR pixels in the inner box > n_max, the reflection is discareded
+            If the number of SNR pixels in the inner box > n_max, the reflection
+            is discareded.
         verbose : bool
             Print statistics for every reflection (for debugging)
 
         Returns
         -------
-        vectors : :obj:`pyxem.signals.diffraction_vectors.DiffractionVectors`
-            DiffractionVectors with optimized coordinates, where the attributes
+        vectors : :obj:`pyxem.signals.diffraction_vectors.DiffractionVectors2D`
+            DiffractionVectors2D with optimized coordinates, where the attributes
             vectors.intensities -> `I`, vectors.sigma -> `sigma(I)`, and
             vectors.snr -> `I / sigma(I)`
 
@@ -303,9 +323,13 @@ class IntegrationGenerator:
         )
         sigma = result.map(_take_ragged, indices=3, _axis=1, inplace=False, ragged=True)
 
+<<<<<<< HEAD
         vectors = DiffractionVectors.from_peaks(
             peaks, calibration=self.calibration, center=self.center
         )
+=======
+        vectors = DiffractionVectors2D.from_peaks(peaks, calibration=self.calibration, center=self.center)
+>>>>>>> 56aa0b1780fc6379e6e85e4fc725db34e4b028c8
         vectors.intensities = intensities
         vectors.sigma = sigma
         vectors.snr = intensities / sigma

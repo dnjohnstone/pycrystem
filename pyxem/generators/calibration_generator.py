@@ -476,7 +476,6 @@ class CalibrationGenerator:
                 self.correction_matrix, preserve_range=True, inplace=True
             )
             data = dpegs.mean((0, 1))
-            data.set_diffraction_calibration(self.diffraction_calibration)
             # Plot the calibrated diffraction data
             data.plot(*args, **kwargs)
         elif data_to_plot == "au_x_grating_im":

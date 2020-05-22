@@ -46,6 +46,7 @@ from diffsims.utils.sim_utils import get_electron_wavelength
 import lmfit
 
 
+<<<<<<< HEAD:pyxem/generators/indexation_generator.py
 class IndexationGenerator:
     """Generates an indexer for data using a number of methods.
 
@@ -199,8 +200,24 @@ def _refine_best_orientations(
     vary_scale=False,
     verbose=False,
 ):
+=======
+def _refine_best_orientations(single_match_result,
+                              vectors,
+                              library,
+                              beam_energy,
+                              camera_length,
+                              n_best=5,
+                              rank=0,
+                              index_error_tol=0.2,
+                              method="leastsq",
+                              vary_angles=True,
+                              vary_center=False,
+                              vary_scale=False,
+                              verbose=False
+                              ):
+>>>>>>> 56aa0b1780fc6379e6e85e4fc725db34e4b028c8:pyxem/generators/indexation_generator3d.py
     """
-    Refine a single orientation agains the given cartesian vector coordinates.
+    Refine a single orientation against the given cartesian vector coordinates.
 
     Parameters
     ----------
@@ -213,8 +230,8 @@ def _refine_best_orientations(
         The rank of the solution to start from.
     solution : list
         np.array containing the initial orientation
-    vectors : DiffractionVectors
-        DiffractionVectors to be indexed.
+    vectors : DiffractionVectors3D
+        DiffractionVectors3D to be indexed.
     structure_library : :obj:`diffsims:StructureLibrary` Object
         Dictionary of structures and associated orientations for which
         electron diffraction is to be simulated.
@@ -254,6 +271,7 @@ def _refine_best_orientations(
         if verbose:  # pragma: no cover
             print(f"# {i}/{n_best} ({n_matches})")
 
+<<<<<<< HEAD:pyxem/generators/indexation_generator.py
         solution = get_nth_best_solution(single_match_result, "vector", rank=i)
 
         result = _refine_orientation(
@@ -269,6 +287,21 @@ def _refine_best_orientations(
             vary_scale=vary_scale,
             verbose=verbose,
         )
+=======
+        solution = get_nth_best_solution(single_match_result, rank=i)
+
+        result = _refine_orientation(solution,
+                                     vectors,
+                                     library,
+                                     beam_energy=beam_energy,
+                                     camera_length=camera_length,
+                                     index_error_tol=index_error_tol,
+                                     method=method,
+                                     vary_angles=vary_angles,
+                                     vary_center=vary_center,
+                                     vary_scale=vary_scale,
+                                     verbose=verbose)
+>>>>>>> 56aa0b1780fc6379e6e85e4fc725db34e4b028c8:pyxem/generators/indexation_generator3d.py
 
         top_matches[i] = result[0]
         res_rhkls.append(result[1])
@@ -279,6 +312,7 @@ def _refine_best_orientations(
     return res
 
 
+<<<<<<< HEAD:pyxem/generators/indexation_generator.py
 def _refine_orientation(
     solution,
     k_xy,
@@ -292,15 +326,29 @@ def _refine_orientation(
     vary_scale=False,
     verbose=False,
 ):
+=======
+def _refine_orientation(solution,
+                        k_xy,
+                        structure_library,
+                        beam_energy,
+                        camera_length,
+                        index_error_tol=0.2,
+                        method="leastsq",
+                        vary_angles=True,
+                        vary_center=False,
+                        vary_scale=False,
+                        verbose=False,
+                        ):
+>>>>>>> 56aa0b1780fc6379e6e85e4fc725db34e4b028c8:pyxem/generators/indexation_generator3d.py
     """
-    Refine a single orientation agains the given cartesian vector coordinates.
+    Refine a single orientation against the given cartesian vector coordinates.
 
     Parameters
     ----------
     solution : OrientationResult
         Namedtuple containing the starting orientation
-    k_xy : DiffractionVectors
-        DiffractionVectors (x,y pixel format) to be indexed.
+    k_xy : DetectorCoordinates2D
+        DetectorCoordinates2D (x,y pixel format) to be indexed.
     structure_library : :obj:`diffsims:StructureLibrary` Object
         Dictionary of structures and associated orientations for which
         electron diffraction is to be simulated.
@@ -326,7 +374,6 @@ def _refine_orientation(
     result : OrientationResult
         Container for the orientation refinement results
     """
-
     # prepare reciprocal_lattice
     structure = structure_library.structures[solution.phase_index]
     lattice_recip = structure.lattice.reciprocal()
@@ -362,7 +409,7 @@ def _refine_orientation(
     params.add("ak", value=ak, vary=vary_angles)
     params.add("scale", value=solution.scale, vary=vary_scale, min=0.8, max=1.2)
 
-    wavelength = get_electron_wavelength(accelarating_voltage)
+    wavelength = get_electron_wavelength(beam_energy)
     camera_length = camera_length * 1e10
     args = k_xy, lattice_recip, wavelength, camera_length
 
@@ -380,8 +427,14 @@ def _refine_orientation(
 
     rotation_matrix = euler2mat(ai, aj, ak)
 
+<<<<<<< HEAD:pyxem/generators/indexation_generator.py
     k_xy = k_xy + np.array((center_x, center_y)) * scale
     cart = detector_to_fourier(k_xy, wavelength=wavelength, camera_length=camera_length)
+=======
+    k_xy = (k_xy + np.array((center_x, center_y)) * scale)
+    cart = detector_to_fourier(k_xy, wavelength=wavelength,
+                               camera_length=camera_length)
+>>>>>>> 56aa0b1780fc6379e6e85e4fc725db34e4b028c8:pyxem/generators/indexation_generator3d.py
 
     intermediate = cart.dot(rotation_matrix.T)  # Must use the transpose here
     hklss = lattice_recip.fractional(intermediate)
@@ -416,26 +469,32 @@ def _refine_orientation(
     return res
 
 
+<<<<<<< HEAD:pyxem/generators/indexation_generator.py
 class VectorIndexationGenerator:
     """Generates an indexer for DiffractionVectors using a number of methods.
+=======
+class IndexationGenerator3D():
+    """Generates an indexer for DiffractionVectors3D using a number of methods.
+>>>>>>> 56aa0b1780fc6379e6e85e4fc725db34e4b028c8:pyxem/generators/indexation_generator3d.py
 
     Attributes
     ----------
-    vectors : DiffractionVectors
-        DiffractionVectors to be indexed.
+    vectors : DiffractionVectors3D
+        DiffractionVectors3D to be indexed.
     vector_library : DiffractionVectorLibrary
         Library of theoretical diffraction vector magnitudes and inter-vector
         angles for indexation.
 
     Parameters
     ----------
-    vectors : DiffractionVectors
-        DiffractionVectors to be indexed.
+    vectors : DiffractionVectors3D
+        DiffractionVectors3D to be indexed.
     vector_library : DiffractionVectorLibrary
         Library of theoretical diffraction vector magnitudes and inter-vector
         angles for indexation.
     """
 
+<<<<<<< HEAD:pyxem/generators/indexation_generator.py
     def __init__(self, vectors, vector_library):
         if vectors.cartesian is None:
             raise ValueError(
@@ -446,6 +505,13 @@ class VectorIndexationGenerator:
         else:
             self.vectors = vectors
             self.library = vector_library
+=======
+    def __init__(self,
+                 vectors,
+                 vector_library):
+        self.vectors = vectors
+        self.library = vector_library
+>>>>>>> 56aa0b1780fc6379e6e85e4fc725db34e4b028c8:pyxem/generators/indexation_generator3d.py
 
     def index_vectors(
         self,
@@ -485,6 +551,7 @@ class VectorIndexationGenerator:
             Navigation axes of the diffraction vectors signal containing vector
             indexation results for each probe position.
         """
+<<<<<<< HEAD:pyxem/generators/indexation_generator.py
         vectors = self.vectors
         library = self.library
 
@@ -500,20 +567,38 @@ class VectorIndexationGenerator:
             *args,
             **kwargs,
         )
+=======
+        matched = self.vectors.map(match_vectors,
+                                   library=self.library,
+                                   mag_tol=mag_tol,
+                                   angle_tol=np.deg2rad(angle_tol),
+                                   index_error_tol=index_error_tol,
+                                   n_peaks_to_index=n_peaks_to_index,
+                                   n_best=n_best,
+                                   inplace=False,
+                                   *args,
+                                   **kwargs)
+>>>>>>> 56aa0b1780fc6379e6e85e4fc725db34e4b028c8:pyxem/generators/indexation_generator3d.py
         indexation = matched.isig[0]
         rhkls = matched.isig[1].data
 
         indexation_results = VectorMatchingResults(indexation)
-        indexation_results.vectors = vectors
+        indexation_results.vectors = self.vectors
         indexation_results.hkls = rhkls
+<<<<<<< HEAD:pyxem/generators/indexation_generator.py
         indexation_results = transfer_navigation_axes(
             indexation_results, vectors.cartesian
         )
+=======
+        indexation_results = transfer_navigation_axes(indexation_results,
+                                                      self.vectors)
+>>>>>>> 56aa0b1780fc6379e6e85e4fc725db34e4b028c8:pyxem/generators/indexation_generator3d.py
 
-        vectors.hkls = rhkls
+        self.vectors.hkls = rhkls
 
         return indexation_results
 
+<<<<<<< HEAD:pyxem/generators/indexation_generator.py
     def refine_best_orientation(
         self,
         orientations,
@@ -527,6 +612,20 @@ class VectorIndexationGenerator:
         method="leastsq",
     ):
         """Refines the best orientation and assigns hkl indices to diffraction vectors.
+=======
+    def refine_best_orientation(self,
+                                orientations,
+                                beam_energy,
+                                camera_length,
+                                rank=0,
+                                index_error_tol=0.2,
+                                vary_angles=True,
+                                vary_center=False,
+                                vary_scale=False,
+                                method="leastsq"):
+        """Refines the best orientation and assigns hkl indices to diffraction
+        vectors.
+>>>>>>> 56aa0b1780fc6379e6e85e4fc725db34e4b028c8:pyxem/generators/indexation_generator3d.py
 
         Parameters
         ----------
@@ -549,13 +648,14 @@ class VectorIndexationGenerator:
 
         Returns
         -------
-        indexation_results : VectorMatchingResults
-            Navigation axes of the diffraction vectors signal containing vector
+        indexation_results : IndexationResults
+            Navigation axes of the diffraction vectors signal containing
             indexation results for each probe position.
         """
         vectors = self.vectors
         library = self.library
 
+<<<<<<< HEAD:pyxem/generators/indexation_generator.py
         return self.refine_n_best_orientations(
             orientations,
             accelarating_voltage=accelarating_voltage,
@@ -582,13 +682,37 @@ class VectorIndexationGenerator:
         vary_scale=False,
         method="leastsq",
     ):
+=======
+        return self.refine_n_best_orientations(orientations,
+                                               beam_energy=beam_energy,
+                                               camera_length=camera_length,
+                                               n_best=1,
+                                               rank=rank,
+                                               index_error_tol=index_error_tol,
+                                               method=method,
+                                               vary_angles=vary_angles,
+                                               vary_center=vary_center,
+                                               vary_scale=vary_scale)
+
+    def refine_n_best_orientations(self,
+                                   orientations,
+                                   beam_energy,
+                                   camera_length,
+                                   n_best=0,
+                                   rank=0,
+                                   index_error_tol=0.2,
+                                   vary_angles=True,
+                                   vary_center=False,
+                                   vary_scale=False,
+                                   method="leastsq"):
+>>>>>>> 56aa0b1780fc6379e6e85e4fc725db34e4b028c8:pyxem/generators/indexation_generator3d.py
         """Refines the best orientation and assigns hkl indices to diffraction vectors.
 
         Parameters
         ----------
         orientations : VectorMatchingResults
             List of orientations to refine, must be an instance of `VectorMatchingResults`.
-        accelerating_voltage : float
+        beam_energy : float
             The acceleration voltage with which the data was acquired.
         camera_length : float
             The camera length in meters.
@@ -621,6 +745,7 @@ class VectorIndexationGenerator:
         vectors = self.vectors
         library = self.library
 
+<<<<<<< HEAD:pyxem/generators/indexation_generator.py
         matched = orientations.map(
             _refine_best_orientations,
             vectors=vectors,
@@ -637,6 +762,21 @@ class VectorIndexationGenerator:
             inplace=False,
             parallel=False,
         )
+=======
+        matched = orientations.map(_refine_best_orientations,
+                                   vectors=vectors,
+                                   library=library,
+                                   beam_energy=beam_energy,
+                                   camera_length=camera_length,
+                                   n_best=n_best,
+                                   rank=rank,
+                                   method="leastsq",
+                                   verbose=False,
+                                   vary_angles=vary_angles,
+                                   vary_center=vary_center,
+                                   vary_scale=vary_scale,
+                                   inplace=False, parallel=False)
+>>>>>>> 56aa0b1780fc6379e6e85e4fc725db34e4b028c8:pyxem/generators/indexation_generator3d.py
 
         indexation = matched.isig[0]
         rhkls = matched.isig[1].data

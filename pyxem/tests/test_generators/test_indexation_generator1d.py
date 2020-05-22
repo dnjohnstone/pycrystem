@@ -19,14 +19,9 @@
 import pytest
 import numpy as np
 
-from pyxem.generators.indexation_generator import ProfileIndexationGenerator
-from pyxem.generators.indexation_generator import VectorIndexationGenerator
+from pyxem.generators.indexation_generator1d import IndexationGenerator1D
 
-from diffsims.libraries.vector_library import DiffractionVectorLibrary
 from diffsims.sims.diffraction_simulation import ProfileSimulation
-from pyxem.signals.diffraction_vectors import DiffractionVectors
-
-from pyxem.utils.indexation_utils import OrientationResult
 
 
 @pytest.fixture
@@ -80,6 +75,7 @@ def profile_simulation():
 
 
 def test_profile_indexation_generator_init(profile_simulation):
+<<<<<<< HEAD:pyxem/tests/test_generators/test_indexation_generator.py
     pig = ProfileIndexationGenerator(
         magnitudes=[
             0.31891931643691351,
@@ -186,3 +182,37 @@ def test_vector_indexation_generator_index_vectors(vector_match_peaks, vector_li
         np.diag(indexation.data[0].rotation_matrix),
         1,
     )
+=======
+    pig = IndexationGenerator1D(magnitudes=[0.31891931643691351,
+                                                 0.52079306292509475,
+                                                 0.6106839974876449,
+                                                 0.73651261277849378,
+                                                 0.80259601243613932,
+                                                 0.9020400452156796,
+                                                 0.95675794931074043,
+                                                 1.0415861258501895,
+                                                 1.0893168446141808,
+                                                 1.1645286909108374,
+                                                 1.2074090451670043,
+                                                 1.2756772657476541],
+                                     simulation=profile_simulation)
+    assert isinstance(pig, IndexationGenerator1D)
+
+
+def test_profile_indexation_generator_single_indexation(profile_simulation):
+    pig = IndexationGenerator1D(magnitudes=[0.31891931643691351,
+                                                 0.52079306292509475,
+                                                 0.6106839974876449,
+                                                 0.73651261277849378,
+                                                 0.80259601243613932,
+                                                 0.9020400452156796,
+                                                 0.95675794931074043,
+                                                 1.0415861258501895,
+                                                 1.0893168446141808,
+                                                 1.1645286909108374,
+                                                 1.2074090451670043,
+                                                 1.2756772657476541],
+                                     simulation=profile_simulation)
+    indexation = pig.index_peaks(tolerance=0.02)
+    np.testing.assert_almost_equal(indexation[0][0], 0.3189193164369)
+>>>>>>> 56aa0b1780fc6379e6e85e4fc725db34e4b028c8:pyxem/tests/test_generators/test_indexation_generator1d.py

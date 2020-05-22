@@ -25,7 +25,7 @@ def _find_max_length_peaks(peaks):
 
     Parameters
     ----------
-    peaks : :class:`pyxem.diffraction_vectors.DiffractionVectors`
+    peaks : :class:`pyxem.diffraction_vectors.DiffractionVectors2D`
         Identified peaks in a diffraction signal.
 
     Returns
@@ -52,7 +52,7 @@ def generate_marker_inputs_from_peaks(peaks):
 
     Parameters
     ----------
-    peaks : :class:`pyxem.diffraction_vectors.DiffractionVectors`
+    peaks : :class:`pyxem.diffraction_vectors.DiffractionVectors2D`
         Identifies peaks in a diffraction signal.
 
     Example

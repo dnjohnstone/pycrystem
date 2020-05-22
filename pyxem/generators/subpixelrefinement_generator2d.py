@@ -21,11 +21,14 @@ Generating subpixel resolution on diffraction vectors.
 """
 
 import numpy as np
-
 from skimage.feature import register_translation
+<<<<<<< HEAD:pyxem/generators/subpixelrefinement_generator.py
+=======
+
+from pyxem.signals.detector_coordinates2d import DetectorCoordinates2D
+>>>>>>> 56aa0b1780fc6379e6e85e4fc725db34e4b028c8:pyxem/generators/subpixelrefinement_generator2d.py
 from pyxem.utils.subpixel_refinements_utils import get_experimental_square
 from pyxem.utils.subpixel_refinements_utils import get_simulated_disc
-from pyxem.utils.subpixel_refinements_utils import _get_pixel_vectors
 
 import warnings
 
@@ -56,19 +59,24 @@ def _conventional_xc(exp_disc, sim_disc, upsample_factor):
     return shifts
 
 
+<<<<<<< HEAD:pyxem/generators/subpixelrefinement_generator.py
 class SubpixelrefinementGenerator:
     """Generates subpixel refinement of DiffractionVectors.
+=======
+class SubpixelRefinementGenerator2D():
+    """Generates subpixel refinement of DetectorCoordinates2D.
+>>>>>>> 56aa0b1780fc6379e6e85e4fc725db34e4b028c8:pyxem/generators/subpixelrefinement_generator2d.py
 
     Parameters
     ----------
-    dp : ElectronDiffraction2D
-        The electron diffraction patterns to be refined
-    vectors : DiffractionVectors | ndarray
-        Vectors (in calibrated units) to the locations of the spots to be
-        refined. If given as DiffractionVectors, it must have the same
-        navigation shape as the electron diffraction patterns. If an ndarray,
-        the same set of vectors is mapped over all electron diffraction
-        patterns.
+    dp : Diffraction2D
+        The diffraction patterns containing the raw measurements of peaks to be
+        refined.
+    coordinates : DetectorCoordinates2D | ndarray
+        Coordinates of positive peaks on the detector to be refined. If given as
+        DetectorCoordinates2D, the navigation shape must be the same as for the
+        corresponding Diffraction2D object. If an ndarray, the same coordinates
+        are used at every navigation index.
 
     References
     ----------
@@ -76,10 +84,11 @@ class SubpixelrefinementGenerator:
 
     """
 
-    def __init__(self, dp, vectors):
+    def __init__(self, dp, coordinates):
         self.dp = dp
-        self.vectors_init = vectors
+        self.coordinates = coordinates
         self.last_method = None
+<<<<<<< HEAD:pyxem/generators/subpixelrefinement_generator.py
         sig_ax = dp.axes_manager.signal_axes
         self.calibration = [sig_ax[0].scale, sig_ax[1].scale]
         self.center = [sig_ax[0].size / 2, sig_ax[1].size / 2]
@@ -87,6 +96,8 @@ class SubpixelrefinementGenerator:
         self.vector_pixels = _get_pixel_vectors(
             dp, vectors, calibration=self.calibration, center=self.center
         )
+=======
+>>>>>>> 56aa0b1780fc6379e6e85e4fc725db34e4b028c8:pyxem/generators/subpixelrefinement_generator2d.py
 
     def conventional_xc(self, square_size, disc_radius, upsample_factor):
         """Refines the peaks using (phase) cross correlation.
@@ -103,19 +114,24 @@ class SubpixelrefinementGenerator:
 
         Returns
         -------
-        vector_out: DiffractionVectors
-            DiffractionVectors containing the refined vectors in calibrated
-            units with the same navigation shape as the diffraction patterns.
+        vector_out: DetectorCoordinates2D
+            DetectorCoordinates2D containing the refined coordinates
+            with the same navigation shape as the diffraction patterns.
 
         """
+<<<<<<< HEAD:pyxem/generators/subpixelrefinement_generator.py
 
         def _conventional_xc_map(
             dp, vectors, sim_disc, upsample_factor, center, calibration
         ):
+=======
+        def _conventional_xc_map(dp, vectors, sim_disc, upsample_factor):
+>>>>>>> 56aa0b1780fc6379e6e85e4fc725db34e4b028c8:pyxem/generators/subpixelrefinement_generator2d.py
             shifts = np.zeros_like(vectors, dtype=np.float64)
             for i, vector in enumerate(vectors):
                 expt_disc = get_experimental_square(dp, vector, square_size)
                 shifts[i] = _conventional_xc(expt_disc, sim_disc, upsample_factor)
+<<<<<<< HEAD:pyxem/generators/subpixelrefinement_generator.py
             return ((vectors + shifts) - center) * calibration
 
         sim_disc = get_simulated_disc(square_size, disc_radius)
@@ -130,6 +146,19 @@ class SubpixelrefinementGenerator:
         )
         self.vectors_out.set_signal_type("diffraction_vectors")
 
+=======
+            return vectors + shifts
+
+        sim_disc = get_simulated_disc(square_size, disc_radius)
+        self.vectors_out = DetectorCoordinates2D(
+            self.dp.map(_conventional_xc_map,
+                        vectors=self.coordinates,
+                        sim_disc=sim_disc,
+                        upsample_factor=upsample_factor,
+                        inplace=False,
+                        ragged=True))
+        self.vectors_out.axes_manager.set_signal_dimension(0)
+>>>>>>> 56aa0b1780fc6379e6e85e4fc725db34e4b028c8:pyxem/generators/subpixelrefinement_generator2d.py
         self.last_method = "conventional_xc"
         return self.vectors_out
 
@@ -188,9 +217,10 @@ class SubpixelrefinementGenerator:
 
         Returns
         -------
-        vector_out: DiffractionVectors
-            DiffractionVectors containing the refined vectors in calibrated
-            units with the same navigation shape as the diffraction patterns.
+        vector_out: DetectorCoordinates2D
+         DetectorCoordinates2D containing the refined coordinates
+            with the same navigation shape as the diffraction patterns.
+
 
         """
 
@@ -244,13 +274,14 @@ class SubpixelrefinementGenerator:
             z_adpt[0, :] = 0
             return z_adpt
 
-        def _center_of_mass_map(dp, vectors, square_size, center, calibration):
+        def _center_of_mass_map(dp, vectors, square_size):
             shifts = np.zeros_like(vectors, dtype=np.float64)
             for i, vector in enumerate(vectors):
                 expt_disc = _com_experimental_square(dp, vector, square_size)
                 shifts[i] = [a - square_size / 2 for a in _center_of_mass_hs(expt_disc)]
-            return ((vectors + shifts) - center) * calibration
+            return vectors + shifts
 
+<<<<<<< HEAD:pyxem/generators/subpixelrefinement_generator.py
         self.vectors_out = self.dp.map(
             _center_of_mass_map,
             vectors=self.vector_pixels,
@@ -260,6 +291,15 @@ class SubpixelrefinementGenerator:
             inplace=False,
         )
         self.vectors_out.set_signal_type("diffraction_vectors")
+=======
+        self.vectors_out = DetectorCoordinates2D(
+            self.dp.map(_center_of_mass_map,
+                        vectors=self.coordinates,
+                        square_size=square_size,
+                        inplace=False,
+                        ragged=True))
+        self.vectors_out.axes_manager.set_signal_dimension(0)
+>>>>>>> 56aa0b1780fc6379e6e85e4fc725db34e4b028c8:pyxem/generators/subpixelrefinement_generator2d.py
 
         self.last_method = "center_of_mass_method"
         return self.vectors_out
@@ -277,21 +317,21 @@ class SubpixelrefinementGenerator:
 
         Returns
         -------
-        vector_out : DiffractionVectors
-            DiffractionVectors containing the refined vectors in calibrated
+        vector_out : DetectorCoordinates2D
+            DetectorCoordinates2D containing the refined vectors in calibrated
             units with the same navigation shape as the diffraction patterns.
 
         Notes
         -----
-        This method works by first locating the maximum intenisty value within the square.
-        The four adjacent pixels are then considered and used to form two independant
-        quadratic equations. Solving these gives the x_center and y_center coordinates,
-        which are then returned.
+        This method works by first locating the maximum intenisty value within
+        the square. The four adjacent pixels are then considered and used to
+        form two independant quadratic equations. Solving these gives the
+        x_center and y_center coordinates, which are then returned.
         """
 
         def _new_lg_idea(z):
-            """ Internal function providing the algebra for the local_gaussian_method,
-            see docstring of that function for details
+            """ Internal function providing the algebra for the
+            local_gaussian_method, see docstring of that function for details.
 
             Parameters
             ----------
@@ -314,12 +354,13 @@ class SubpixelrefinementGenerator:
             y_ans = 0.5 * (UY - DY) / (UY + DY - 2 * M)
             return (si[1] - z.shape[1] // 2 + x_ans, si[0] - z.shape[0] // 2 + y_ans)
 
-        def _lg_map(dp, vectors, square_size, center, calibration):
+        def _lg_map(dp, vectors, square_size):
             shifts = np.zeros_like(vectors, dtype=np.float64)
             for i, vector in enumerate(vectors):
                 expt_disc = get_experimental_square(dp, vector, square_size)
                 shifts[i] = _new_lg_idea(expt_disc)
 
+<<<<<<< HEAD:pyxem/generators/subpixelrefinement_generator.py
             return ((vectors + shifts) - center) * calibration
 
         self.vectors_out = self.dp.map(
@@ -331,6 +372,15 @@ class SubpixelrefinementGenerator:
             inplace=False,
         )
         self.vectors_out.set_signal_type("diffraction_vectors")
+=======
+            return vectors + shifts
+
+        self.vectors_out = DetectorCoordinates2D(self.dp.map(_lg_map,
+                                                            vectors=self.coordinates,
+                                                            square_size=square_size,
+                                                            inplace=False,
+                                                            ragged=True))
+>>>>>>> 56aa0b1780fc6379e6e85e4fc725db34e4b028c8:pyxem/generators/subpixelrefinement_generator2d.py
 
         # check for unrefined peaks
         def check_bad_square(z):
@@ -350,12 +400,19 @@ class SubpixelrefinementGenerator:
                     return True
             return False
 
+<<<<<<< HEAD:pyxem/generators/subpixelrefinement_generator.py
         bad_squares = self.dp.map(
             _check_bad_square_map,
             vectors=self.vector_pixels,
             square_size=square_size,
             inplace=False,
         )
+=======
+        bad_squares = self.dp.map(_check_bad_square_map,
+                                  vectors=self.coordinates,
+                                  square_size=square_size,
+                                  inplace=False)
+>>>>>>> 56aa0b1780fc6379e6e85e4fc725db34e4b028c8:pyxem/generators/subpixelrefinement_generator2d.py
 
         if np.any(bad_squares):
             warnings.warn(

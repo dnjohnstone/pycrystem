@@ -33,6 +33,7 @@ from hyperspy.misc.utils import isiterable
 
 from pyxem.signals.diffraction1d import Diffraction1D
 from pyxem.signals.electron_diffraction1d import ElectronDiffraction1D
+<<<<<<< HEAD
 from pyxem.signals.polar_diffraction2d import PolarDiffraction2D
 from pyxem.signals.differential_phase_contrast import (
     DPCBaseSignal,
@@ -79,8 +80,25 @@ from pyxem.utils.peakfinders2D import (
     find_peaks_log,
     find_peaks_xc,
 )
+=======
+from pyxem.signals.detector_coordinates2d import DetectorCoordinates2D
+from pyxem.signals import push_metadata_through, transfer_navigation_axes, \
+    select_method_from_method_dict
+
+from pyxem.utils.expt_utils import _index_coords, _cart2polar, _polar2cart, \
+    radial_average, azimuthal_integrate, azimuthal_integrate_fast, \
+    gain_normalise, remove_dead, regional_filter, subtract_background_dog, \
+    subtract_background_median, subtract_reference, circular_mask, \
+    find_beam_offset_cross_correlation, peaks_as_gvectors, \
+    convert_affine_to_transform, apply_transformation, find_beam_center_blur, \
+    find_beam_center_interpolate
+
+from pyxem.utils.peakfinders2D import find_peaks_zaefferer, find_peaks_stat, \
+    find_peaks_dog, find_peaks_log, find_peaks_xc
+>>>>>>> 56aa0b1780fc6379e6e85e4fc725db34e4b028c8
 
 from pyxem.utils import peakfinder2D_gui
+from pyxem.signals import transfer_navigation_axes
 
 import pyxem.utils.pixelated_stem_tools as pst
 import pyxem.utils.dask_tools as dt
@@ -96,6 +114,132 @@ import dask.array as da
 from dask.diagnostics import ProgressBar
 from tqdm import tqdm
 
+<<<<<<< HEAD
+=======
+from pyFAI.azimuthalIntegrator import AzimuthalIntegrator
+
+
+class Diffraction2D(Signal2D):
+    _signal_type = "diffraction2d"
+
+    def __init__(self, *args, **kwargs):
+        """
+        Create an Diffraction2D object from a hs.Signal2D or np.array.
+
+        Parameters
+        ----------
+        *args :
+            Passed to the __init__ of Signal2D. The first arg should be
+            either a numpy.ndarray or a Signal2D
+        **kwargs :
+            Passed to the __init__ of Signal2D
+        """
+        self, args, kwargs = push_metadata_through(self, *args, **kwargs)
+        super().__init__(*args, **kwargs)
+
+        self.decomposition.__func__.__doc__ = BaseSignal.decomposition.__doc__
+        dx = self.axes_manager.signal_axes[0]
+        dy = self.axes_manager.signal_axes[1]
+
+        dx.name = 'detector x'
+        dx.units = 'pixels'
+        dy.name = 'detector y'
+        dy.units = 'pixels'
+
+    def set_scan_calibration(self, calibration, units):
+        """Set scan pixel size in nanometres.
+
+        Parameters
+        ----------
+        calibration : float
+            Scan calibration in units per pixel.
+        units : str
+            Scan calibration units.
+        """
+        x = self.axes_manager.navigation_axes[0]
+        y = self.axes_manager.navigation_axes[1]
+
+        x.name = 'x'
+        x.scale = calibration
+        x.units = units
+
+        y.name = 'y'
+        y.scale = calibration
+        y.units = units
+
+    def plot_interactive_virtual_image(self, roi, **kwargs):
+        """Plots an interactive virtual image formed with a specified and
+        adjustable roi.
+
+        Parameters
+        ----------
+        roi : :obj:`hyperspy.roi.BaseInteractiveROI`
+            Any interactive ROI detailed in HyperSpy.
+        **kwargs:
+            Keyword arguments to be passed to `Diffraction2D.plot`
+
+        Examples
+        --------
+        .. code-block:: python
+
+            import hyperspy.api as hs
+            roi = hs.roi.CircleROI(0, 0, 0.2)
+            data.plot_interactive_virtual_image(roi)
+
+        """
+        self.plot(**kwargs)
+        roi.add_widget(self, axes=self.axes_manager.signal_axes)
+        # Add the ROI to the appropriate signal axes.
+        dark_field = roi.interactive(self, navigation_signal='same')
+        dark_field_placeholder = \
+            BaseSignal(np.zeros(self.axes_manager.navigation_shape[::-1]))
+        # Create an output signal for the virtual dark-field calculation.
+        dark_field_sum = interactive(
+            # Create an interactive signal
+            dark_field.sum,
+            # Formed from the sum of the pixels in the dark-field signal
+            event=dark_field.axes_manager.events.any_axis_changed,
+            # That updates whenever the widget is moved
+            axis=dark_field.axes_manager.signal_axes,
+            out=dark_field_placeholder,
+            # And outputs into the prepared placeholder.
+        )
+        dark_field_sum.axes_manager.update_axes_attributes_from(
+            self.axes_manager.navigation_axes,
+            ['scale', 'offset', 'units', 'name'])
+        dark_field_sum.metadata.General.title = "Virtual Dark Field"
+        # Set the parameters
+        dark_field_sum.plot()  # Plot the result
+
+    def get_virtual_image(self, roi):
+        """Obtains a virtual image associated with a specified ROI.
+
+        Parameters
+        ----------
+        roi: :obj:`hyperspy.roi.BaseInteractiveROI`
+            Any interactive ROI detailed in HyperSpy.
+
+        Returns
+        -------
+        dark_field_sum : :obj:`hyperspy.signals.BaseSignal`
+            The virtual image signal associated with the specified roi.
+
+        Examples
+        --------
+        .. code-block:: python
+
+            import hyperspy.api as hs
+            roi = hs.roi.CircleROI(0, 0, 0.2)
+            data.get_virtual_image(roi)
+
+        """
+        dark_field = roi(self, axes=self.axes_manager.signal_axes)
+        dark_field_sum = dark_field.sum(
+            axis=dark_field.axes_manager.signal_axes
+        )
+        dark_field_sum.metadata.General.title = "Virtual Dark Field"
+        vdfim = dark_field_sum.as_signal2D((0, 1))
+>>>>>>> 56aa0b1780fc6379e6e85e4fc725db34e4b028c8
 
 class Diffraction2D(Signal2D, CommonDiffraction):
     _signal_type = "diffraction"
@@ -776,12 +920,10 @@ class Diffraction2D(Signal2D, CommonDiffraction):
 
         return bg_subtracted
 
-    def find_peaks(self, method, *args, **kwargs):
-        """Find the position of diffraction peaks.
-
-        Function to locate the positive peaks in an image using various, user
-        specified, methods. Returns a structured array containing the peak
-        positions.
+    def find_peaks(self, method,
+                   *args, **kwargs):
+        """Determine the coordinates in the detector plane of positive peaks
+        using various user defined methods.
 
         Parameters
         ---------
@@ -796,11 +938,9 @@ class Diffraction2D(Signal2D, CommonDiffraction):
 
         Returns
         -------
-        peaks : DiffractionVectors
-            A DiffractionVectors object with navigation dimensions identical to
-            the original ElectronDiffraction2D object. Each signal is a BaseSignal
-            object contiaining the diffraction vectors found at each navigation
-            position, in calibrated units.
+        peak_coordinates : DetectorCoordinates2D
+            The pixel coordinates of peaks found in the Diffraction2D signal,
+            with navigation dimensions identical to the Diffraction2D object.
 
         Notes
         -----
@@ -834,6 +974,7 @@ class Diffraction2D(Signal2D, CommonDiffraction):
                 "implementations.".format(method)
             )
 
+<<<<<<< HEAD
         peaks = self.map(method, *args, **kwargs, inplace=False, ragged=True)
         peaks.map(
             peaks_as_gvectors,
@@ -841,11 +982,17 @@ class Diffraction2D(Signal2D, CommonDiffraction):
             calibration=self.axes_manager.signal_axes[0].scale,
         )
         peaks.set_signal_type("diffraction_vectors")
+=======
+        peak_coordinates = self.map(method, *args, **kwargs, inplace=False, ragged=True)
+        peak_coordinates = DetectorCoordinates2D(peak_coordinates)
+        peak_coordinates.axes_manager.set_signal_dimension(0)
+>>>>>>> 56aa0b1780fc6379e6e85e4fc725db34e4b028c8
 
         # Set DiffractionVectors attributes
         peaks.pixel_calibration = self.axes_manager.signal_axes[0].scale
         peaks.detector_shape = self.axes_manager.signal_shape
 
+<<<<<<< HEAD
         # Set calibration to same as signal
         x = peaks.axes_manager.navigation_axes[0]
         y = peaks.axes_manager.navigation_axes[1]
@@ -857,8 +1004,11 @@ class Diffraction2D(Signal2D, CommonDiffraction):
         y.name = "y"
         y.scale = self.axes_manager.navigation_axes[1].scale
         y.units = "nm"
+=======
+        transfer_navigation_axes(peak_coordinates, self)
+>>>>>>> 56aa0b1780fc6379e6e85e4fc725db34e4b028c8
 
-        return peaks
+        return peak_coordinates
 
     def find_peaks_interactive(self, disc_image=None, imshow_kwargs={}):
         """Find peaks using an interactive tool.

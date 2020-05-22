@@ -19,29 +19,22 @@
 import numpy as np
 
 from hyperspy.signals import BaseSignal, Signal1D
-from hyperspy.api import markers
 
-import matplotlib.pyplot as plt
-from matplotlib.cm import get_cmap
-from scipy.spatial import distance_matrix
-from sklearn.cluster import DBSCAN
-
-from warnings import warn
-
+<<<<<<< HEAD
 from pyxem.signals import (
     transfer_navigation_axes,
     transfer_navigation_axes_to_signal_axes,
 )
 from pyxem.utils.vector_utils import detector_to_fourier
+=======
+from pyxem.signals import push_metadata_through
+>>>>>>> 56aa0b1780fc6379e6e85e4fc725db34e4b028c8
 from pyxem.utils.vector_utils import calculate_norms, calculate_norms_ragged
-from pyxem.utils.vector_utils import get_npeaks, filter_vectors_ragged
-from pyxem.utils.vector_utils import filter_vectors_edge_ragged
-from pyxem.utils.expt_utils import peaks_as_gvectors
-from pyxem.utils.plot import generate_marker_inputs_from_peaks
+from pyxem.utils.vector_utils import get_npeaks
 
 
 """
-Signal class for diffraction vectors.
+Base Signal class for n-dimensional diffraction vectors.
 
 There are two cases that are supported:
 
@@ -49,23 +42,19 @@ There are two cases that are supported:
 signals. It the navigation dimensions of the map and contains a signal for each
 peak at every position.
 
-2. A list of diffraction vectors with dimensions < n | 2 > where n is the
-number of peaks.
+2. A list of diffraction vectors with dimensions < x | n > where x is the
+number of vectors and n is the dimensionality of the vectors.
 """
 
 
-class DiffractionVectors(BaseSignal):
-    """Crystallographic mapping results containing the best matching crystal
-    phase and orientation at each navigation position with associated metrics.
+class BaseDiffractionVectors(BaseSignal):
+    """Two-dimensional diffraction vectors in reciprocal Angstrom units.
 
     Attributes
     ----------
-    cartesian : np.array()
-        Array of 3-vectors describing Cartesian coordinates associated with
-        each diffraction vector.
-    hkls : np.array()
-        Array of Miller indices associated with each diffraction vector
-        following indexation.
+    detector_coordinates : DetectorCoordinates2D
+        Array of 2-vectors describing detector coordinates associated with each
+        diffraction vector.
     """
 
     _signal_dimension = 0
@@ -73,31 +62,24 @@ class DiffractionVectors(BaseSignal):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.cartesian = None
-        self.hkls = None
         self.detector_shape = None
         self.pixel_calibration = None
 
-    @classmethod
-    def from_peaks(cls, peaks, center, calibration):
-        """Takes a list of peak positions (pixel coordinates) and returns
-        an instance of `Diffraction2D`
+    def get_nvectors_map(self, binary=False):
+        """Map of the number of vectors at each navigation position.
 
         Parameters
         ----------
-        peaks : Signal
-            Signal containing lists (np.array) of pixel coordinates specifying
-            the reflection positions
-        center : np.array
-            Diffraction pattern center in array indices.
-        calibration : np.array
-            Calibration in reciprocal Angstroms per pixels for each of the dimensions.
+        binary : boolean
+            If True a binary image with diffracting pixels taking value == 1 is
+            returned.
 
         Returns
         -------
-        vectors : :obj:`pyxem.signals.diffraction_vectors.DiffractionVectors`
-            List of diffraction vectors
+        crystim : Signal2D
+            2D map of diffracting pixels.
         """
+<<<<<<< HEAD
         gvectors = peaks.map(
             peaks_as_gvectors, center=center, calibration=calibration, inplace=False
         )
@@ -121,57 +103,16 @@ class DiffractionVectors(BaseSignal):
         distance_threshold_all=0.005,
     ):  # pragma: no cover
         """Plot the unique diffraction vectors.
+=======
+        crystim = self.map(get_npeaks, inplace=False).as_signal2D((0, 1))
+>>>>>>> 56aa0b1780fc6379e6e85e4fc725db34e4b028c8
 
-        Parameters
-        ----------
-        xlim : float
-            The maximum x coordinate to be plotted.
-        ylim : float
-            The maximum y coordinate in reciprocal Angstroms to be plotted.
-        unique_vectors : DiffractionVectors, optional
-            The unique vectors to be plotted (optional). If not given, the
-            unique vectors will be found by get_unique_vectors.
-        distance_threshold : float, optional
-            The minimum distance in reciprocal Angstroms between diffraction
-            vectors for them to be considered unique diffraction vectors.
-            Will be passed to get_unique_vectors if no unique vectors are
-            given.
-        method : str
-            The method to use to determine unique vectors, if not given.
-            Valid methods are 'strict', 'distance_comparison' and 'DBSCAN'.
-            'strict' returns all vectors that are strictly unique and
-            corresponds to distance_threshold=0.
-            'distance_comparison' checks the distance between vectors to
-            determine if some should belong to the same unique vector,
-            and if so, the unique vector is iteratively updated to the
-            average value.
-            'DBSCAN' relies on the DBSCAN [1] clustering algorithm, and
-            uses the Eucledian distance metric.
-        min_samples : int, optional
-            The minimum number of not identical vectors within one cluster
-            for it to be considered a core sample, i.e. to not be considered
-            noise. Will be passed to get_unique_vectors if no unique vectors
-            are given. Only used if method=='DBSCAN'.
-        image_to_plot_on : BaseSignal, optional
-            If provided, the vectors will be plotted on top of this image.
-            The image must be calibrated in terms of offset and scale.
-        image_cmap : str, optional
-            The colormap to plot the image in.
-        plot_label_colors : bool, optional
-            If True (default is False), also the vectors contained within each
-            cluster will be plotted, with colors according to their
-            cluster membership. If True, the unique vectors will be
-            calculated by get_unique_vectors. Requires on method=='DBSCAN'.
-        distance_threshold_all : float, optional
-            The minimum distance, in calibrated units, between diffraction
-            vectors inside one cluster for them to be plotted. Only used if
-            plot_label_colors is True and requires method=='DBSCAN'.
+        if binary == True:
+            crystim = crystim == 1
 
-        Returns
-        -------
-        fig : matplotlib figure
-            The plot as a matplotlib figure.
+        crystim.change_dtype('float')
 
+<<<<<<< HEAD
         """
         fig = plt.figure()
         ax = fig.add_subplot(111)
@@ -268,6 +209,21 @@ class DiffractionVectors(BaseSignal):
         for mx, my in zip(mmx, mmy):
             m = markers.point(x=mx, y=my, color="red", marker="x")
             signal.add_marker(m, plot_marker=True, permanent=False)
+=======
+        # Set calibration to same as signal
+        x = crystim.axes_manager.signal_axes[0]
+        y = crystim.axes_manager.signal_axes[1]
+
+        x.name = 'x'
+        x.scale = self.axes_manager.navigation_axes[0].scale
+        x.units = 'nm'
+
+        y.name = 'y'
+        y.scale = self.axes_manager.navigation_axes[0].scale
+        y.units = 'nm'
+
+        return crystim
+>>>>>>> 56aa0b1780fc6379e6e85e4fc725db34e4b028c8
 
     def get_magnitudes(self, *args, **kwargs):
         """Calculate the magnitude of diffraction vectors.
@@ -335,6 +291,7 @@ class DiffractionVectors(BaseSignal):
         ghis.axes_manager.signal_axes[0].units = "$A^{-1}$"
 
         return ghis
+<<<<<<< HEAD
 
     def get_unique_vectors(
         self,
@@ -652,3 +609,5 @@ class DiffractionVectors2D(DiffractionVectors):
         super().__init__(*args, **kw)
         if self.axes_manager.signal_dimension != 2:
             self.axes_manager.set_signal_dimension(2)
+=======
+>>>>>>> 56aa0b1780fc6379e6e85e4fc725db34e4b028c8

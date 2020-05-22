@@ -19,9 +19,12 @@
 import pytest
 import numpy as np
 import dask.array as da
+<<<<<<< HEAD
 import hyperspy.api as hs
 
 from hyperspy.signals import Signal1D, Signal2D
+=======
+>>>>>>> 56aa0b1780fc6379e6e85e4fc725db34e4b028c8
 
 from pyxem.signals.electron_diffraction2d import ElectronDiffraction2D
 from pyxem.signals.electron_diffraction1d import ElectronDiffraction1D
@@ -36,6 +39,7 @@ def test_init():
     )
 
 
+<<<<<<< HEAD
 class TestSimpleMaps:
     # Confirms that maps run without error.
 
@@ -111,6 +115,8 @@ class TestSimpleMaps:
         assert isinstance(dpr, ElectronDiffraction2D)
 
 
+=======
+>>>>>>> 56aa0b1780fc6379e6e85e4fc725db34e4b028c8
 class TestSimpleHyperspy:
     # Tests functions that assign to hyperspy metadata
 
@@ -127,7 +133,7 @@ class TestSimpleHyperspy:
         assert isinstance(diffraction_pattern, ElectronDiffraction2D)
 
     def test_set_scan_calibration(self, diffraction_pattern):
-        diffraction_pattern.set_scan_calibration(19)
+        diffraction_pattern.set_scan_calibration(19, 'nm')
         assert isinstance(diffraction_pattern, ElectronDiffraction2D)
 
     @pytest.mark.parametrize(

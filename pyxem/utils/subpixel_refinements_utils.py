@@ -23,7 +23,7 @@ utils to support SubpixelrefinementGenerator
 import numpy as np
 from skimage import draw
 from skimage.transform import rescale
-from pyxem.signals.diffraction_vectors import DiffractionVectors
+from pyxem.signals.diffraction_vectors2d import DiffractionVectors2D
 
 
 def get_experimental_square(z, vector, square_size):
@@ -110,7 +110,7 @@ def _get_pixel_vectors(dp, vectors, calibration, center):
             np.int
         )
 
-    if isinstance(vectors, DiffractionVectors):
+    if isinstance(vectors, DiffractionVectors2D):
         if vectors.axes_manager.navigation_shape != dp.axes_manager.navigation_shape:
             raise ValueError(
                 "Vectors with shape {} must have the same navigation shape "
@@ -125,6 +125,7 @@ def _get_pixel_vectors(dp, vectors, calibration, center):
     else:
         vector_pixels = _floor(vectors, calibration, center)
 
+<<<<<<< HEAD
     if isinstance(vector_pixels, DiffractionVectors):
         if np.any(vector_pixels.data > (np.max(dp.data.shape) - 1)) or (
             np.any(vector_pixels.data < 0)
@@ -132,6 +133,11 @@ def _get_pixel_vectors(dp, vectors, calibration, center):
             raise ValueError(
                 "Some of your vectors do not lie within your diffraction pattern, check your calibration"
             )
+=======
+    if isinstance(vector_pixels, DiffractionVectors2D):
+        if np.any(vector_pixels.data > (np.max(dp.data.shape) - 1)) or (np.any(vector_pixels.data < 0)):
+            raise ValueError('Some of your vectors do not lie within your diffraction pattern, check your calibration')
+>>>>>>> 56aa0b1780fc6379e6e85e4fc725db34e4b028c8
     elif isinstance(vector_pixels, np.ndarray):
         if np.any((vector_pixels > np.max(dp.data.shape) - 1)) or (
             np.any(vector_pixels < 0)
