@@ -58,7 +58,6 @@ from .signals.detector_coordinates2d import DetectorCoordinates2D
 from .signals.diffraction_vectors2d import DiffractionVectors2D
 from .signals.diffraction_vectors3d import DiffractionVectors3D
 
-<<<<<<< HEAD
 from .generators.red_intensity_generator1d import ReducedIntensityGenerator1D
 from .generators.pdf_generator1d import PDFGenerator1D
 from .generators.variance_generator import VarianceGenerator
@@ -67,27 +66,17 @@ from .signals.diffraction_variance1d import DiffractionVariance1D
 from .signals.diffraction_variance2d import DiffractionVariance2D
 from .signals.differential_phase_contrast import DPCBaseSignal, DPCSignal1D, DPCSignal2D
 from .signals.diffraction_vectors import DiffractionVectors, DiffractionVectors2D
-from .signals.indexation_results import TemplateMatchingResults
 from .signals.vdf_image import VDFImage
 from .signals.pair_distribution_function1d import PairDistributionFunction1D
 from .signals.reduced_intensity1d import ReducedIntensity1D
+
+from .signals.indexation_results import TemplateMatchingResults
+from .signals.indexation_results import VectorMatchingResults
+from .signals.crystallographic_map import CrystallographicMap
+
 
 from pyxem.utils.io_utils import load_mib
 from pyxem.utils.io_tools import load_ps_signal
-=======
-from .signals.vdf_image import VDFImage
-from .signals.diffraction_variance1d import DiffractionVariance1D
-from .signals.diffraction_variance2d import DiffractionVariance2D
-
-from .signals.pair_distribution_function1d import PairDistributionFunction1D
-from .signals.reduced_intensity1d import ReducedIntensity1D
-
-from .signals.crystallographic_map import CrystallographicMap
-from .signals.indexation_results import TemplateMatchingResults
-
-
-from pyxem.utils.io_utils import load, load_mib, load_hspy
->>>>>>> 56aa0b1780fc6379e6e85e4fc725db34e4b028c8
 
 from . import release_info
 
